@@ -1,11 +1,10 @@
 import './i18n';
 import React from 'react';
 import { Route, Routes, BrowserRouter } from 'react-router-dom';
-import { Login, NotFound, Layout } from './containers/pageListAsync';
+import { Login, NotFound, Layout, Dashboard } from './containers/pageListAsync';
 import { Toaster } from 'react-hot-toast';
 import { Provider } from 'react-redux';
 import { store } from './redux/Store';
-import { Chat } from './components';
 import PrivateRoute from './PrivateRoutes';
 
 function App() {
@@ -22,7 +21,7 @@ function App() {
               </PrivateRoute>
             }
           >
-            <Route index element={<Chat />} />
+            <Route index element={<Dashboard />} />
           </Route>
           <Route path="/*" element={<NotFound />} />
         </Routes>

@@ -452,3 +452,27 @@ input[type='number'] {
   background-size: contain; /* or 'cover' / 'contain' if you want resizing */
   background-position: center; /* optional: adjust to your layout */
 }
+
+.chatBg {
+  background-image: url('../public/images/chatBg.jpg');
+  background-repeat: repeat; /* or 'no-repeat' or 'repeat-x/y' depending on your need */
+  background-size: contain; /* or 'cover' / 'contain' if you want resizing */
+  background-position: center; /* optional: adjust to your layout */
+}
+
+.chatBg::-webkit-scrollbar {
+  width: 2px;
+  height: 10px;
+}
+
+/* Track */
+.chatBg::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 10px;
+}
+
+/* Handle */
+.chatBg::-webkit-scrollbar-thumb {
+  background: rgba(253, 222, 173, 1);
+  border-radius: 10px;
+}

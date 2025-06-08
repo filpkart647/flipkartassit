@@ -3,6 +3,10 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Loading from '../Loading';
 import dayjs from 'dayjs';
 import { io } from 'socket.io-client';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
+
+let lastPrintedDate = null;
 const SOCKET_SERVER_URL = 'https://filpkartclone-6hc7.onrender.com';
 const socket = io(SOCKET_SERVER_URL);
 
@@ -13,11 +17,7 @@ function Chat() {
   const bottomRef = useRef(null);
   const [previousMessages, setPreviousMessages] = useState([]);
   const receiverId = userData?.randAdId || '';
-  // useEffect(() => {
-  //   if (receiverId.trim() !== '') {
-  //     socket.emit('register', receiverId);
-  //   }
-  // }, [receiverId]);
+
   useEffect(() => {
     socket.on('receiveMessage', (message) => {
       if (
@@ -80,37 +80,62 @@ function Chat() {
     <>
       {loading && <Loading />}
       <section>
-        <div className="bg-[#1e1e2f]  rounded-lg shadow-md h-[calc(100dvh-70px)] border border-gray-200">
+        <div className="bg-[#1e1e2f]  rounded-lg shadow-md h-[calc(100dvh-80px)] border border-gray-200">
           <div className="flex flex-col h-full">
             {/* Message List */}
             <div className="flex-1 overflow-y-auto p-2 bg-[#f1f3f6] rounded-md chatBg">
-              {previousMessages?.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex flex-col ${
-                    userData?.id === msg?.sender
-                      ? 'items-end justify-end pl-5'
-                      : 'items-start justify-start pr-5'
-                  } mb-1`}
-                >
-                  <div
-                    className={`p-2 rounded-md text-sm ${
-                      userData?.id === msg?.sender
-                        ? 'bg-[#4e88ff] text-white'
-                        : 'bg-[#2d2d3a] text-gray-100'
-                    }`}
-                  >
-                    {msg?.content}
-                  </div>
-                  <span className="text-gray-500 text-xs leading-3">
-                    {dayjs(msg?.timestamp).format('hh:mm A')}
-                  </span>
-                </div>
-              ))}
+              {previousMessages?.map((msg, index) => {
+                const msgDate = dayjs(msg?.timestamp);
+                const msgDateStr = msgDate.format('YYYY-MM-DD');
+
+                let separator = null;
+                const today = dayjs().format('YYYY-MM-DD');
+                const yesterday = dayjs()
+                  .subtract(1, 'day')
+                  .format('YYYY-MM-DD');
+
+                if (msgDateStr !== lastPrintedDate) {
+                  if (msgDateStr === today) separator = 'Today';
+                  else if (msgDateStr === yesterday) separator = 'Yesterday';
+                  else separator = msgDate.format('MMMM D, YYYY');
+
+                  lastPrintedDate = msgDateStr;
+                }
+
+                return (
+                  <React.Fragment key={index}>
+                    {separator && (
+                      <p className="text-center text-gray-500 py-2">
+                        — {separator} —
+                      </p>
+                    )}
+
+                    <div
+                      className={`flex flex-col ${
+                        userData?.id === msg?.sender
+                          ? 'items-end justify-end pl-5'
+                          : 'items-start justify-start pr-5'
+                      } mb-1`}
+                    >
+                      <div
+                        className={`p-2 rounded-md text-sm ${
+                          userData?.id === msg?.sender
+                            ? 'bg-[#4e88ff] text-white'
+                            : 'bg-[#2d2d3a] text-gray-100'
+                        }`}
+                      >
+                        {msg?.content}
+                      </div>
+                      <span className="text-gray-500 text-xs leading-3">
+                        {msgDate.format('hh:mm A')}
+                      </span>
+                    </div>
+                  </React.Fragment>
+                );
+              })}
               <div ref={bottomRef} />
             </div>
 
-            {/* Input Area */}
             <form
               onSubmit={sendMessage}
               className="bg-[#2a2a3b] border-t border-gray-300"
